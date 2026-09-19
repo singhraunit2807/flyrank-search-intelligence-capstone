@@ -1,9 +1,40 @@
 <!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FlyRank Search Intelligence Capstone</title></head>
-<body style="font-family:Arial,sans-serif;max-width:900px;margin:60px auto;padding:20px">
-<h1>FlyRank Search Intelligence Capstone</h1>
-<p>The research paper is generated automatically by the executed capstone notebook.</p>
-<p>Run <code>work/notebooks/capstone_analysis.ipynb</code> to populate the final results.</p>
-</body>
-</html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Search Decline Signals and a Transparent Content Review Queue</title>
+<style>
+body{font-family:Inter,Arial,sans-serif;line-height:1.65;color:#102a2e;background:#f6faf9;margin:0}
+.wrap{max-width:1050px;margin:auto;padding:42px 22px 80px} .hero{background:#fff;padding:42px;border-radius:20px;box-shadow:0 8px 30px #0b303014}
+h1{font-size:42px;line-height:1.12;margin:0 0 14px} h2{margin-top:42px} h3{margin-top:28px}
+.tag{display:inline-block;padding:6px 11px;border-radius:999px;background:#dff4ea;margin:3px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:20px 0}
+.card{background:#fff;border:1px solid #dbe8e4;border-radius:14px;padding:18px} .big{font-size:28px;font-weight:700}
+table{width:100%;border-collapse:collapse;background:#fff} th,td{padding:10px;border-bottom:1px solid #dbe8e4;text-align:left;font-size:14px}
+th{background:#edf6f3} .barrow{display:grid;grid-template-columns:170px 1fr 70px;gap:10px;align-items:center;margin:10px 0;font-size:13px}
+.bar{height:12px;background:#e6efed;border-radius:10px;overflow:hidden} .bar i{display:block;height:100%;background:#0d7377}
+.note{padding:16px 18px;background:#eef8f4;border-left:4px solid #0d7377;border-radius:8px}
+.small{color:#52686b;font-size:13px} code{background:#edf1f0;padding:2px 5px;border-radius:4px}
+</style></head><body><main class="wrap"><section class="hero">
+<div><span class="tag">FlyRank ML Capstone</span><span class="tag">Search Intelligence</span><span class="tag">Client-grouped validation</span></div>
+<h1>Search Decline Signals and a Transparent Content Review Queue</h1>
+<p><b>Research question:</b> Which observable search-performance signals are associated with future content decline, and can they support a transparent ranking system for deciding what to review first?</p>
+<p class="small">Data mode: <b>starter</b> · Analysis rows: <b>30,000</b> · Holdout rows: <b>6,030</b></p>
+</section>
+<section><h2>Abstract</h2><p>This study tests whether simple search-performance signals can identify pages that deserve earlier review when visibility declines. I first examine descriptive relationships between decline, freshness, CTR and search position, then compare a transparent hand-written baseline with a Random Forest model using the same client-grouped holdout. The result is an explainable review queue with reason codes rather than an automatic content-change system. The findings are directional and decision-support oriented: they do not establish causation or reveal Google's ranking algorithm.</p></section>
+<section><h2>Research decision</h2><p>The practical decision supported by this work is <b>which pages should a content team inspect first?</b> The system is not designed to decide that a page must be rewritten. Human review remains the final step.</p></section>
+<section><h2>Data and validation</h2><div class="grid">
+<div class="card"><div class="big">30,000</div><div>analysis rows</div></div>
+<div class="card"><div class="big">54.2%</div><div>decline base rate</div></div>
+<div class="card"><div class="big">24</div><div>training clients/groups</div></div>
+<div class="card"><div class="big">8</div><div>holdout clients/groups</div></div>
+</div><p>The preferred warehouse path uses a pre-decision feature window and a future 30-day outcome. The model and baseline are evaluated on the same client-grouped holdout. No label-derived field is used as a feature.</p></section>
+<section><h2>Model versus transparent baseline</h2><div class="grid">
+<div class="card"><b>Precision@50</b><div class="barrow"><span>Baseline</span><div class="bar"><i style="width:36.0%"></i></div><b>0.360</b></div><div class="barrow"><span>Random Forest</span><div class="bar"><i style="width:66.0%"></i></div><b>0.660</b></div></div>
+<div class="card"><b>Precision@100</b><div class="barrow"><span>Baseline</span><div class="bar"><i style="width:35.0%"></i></div><b>0.350</b></div><div class="barrow"><span>Random Forest</span><div class="bar"><i style="width:66.0%"></i></div><b>0.660</b></div></div>
+<div class="card"><b>Average precision</b><div class="barrow"><span>Baseline</span><div class="bar"><i style="width:50.2%"></i></div><b>0.502</b></div><div class="barrow"><span>Random Forest</span><div class="bar"><i style="width:61.3%"></i></div><b>0.613</b></div></div>
+</div><p>ROC AUC for the model is <b>0.599</b>. These measurements describe this holdout only; they are not future-performance guarantees.</p></section>
+<section><h2>What the signals say</h2><p>Directional association observed. Lower CTR has higher observed decline in visible bands.</p><div class="note">A signal is treated as evidence for prioritization, not as proof of causality. Search intent, SERP features, seasonality and other unobserved factors can change CTR or visibility.</div></section>
+<section><h2>Top-10 review queue</h2><table><tr><th>Rank</th><th>Action</th><th>Score</th><th>Reason</th><th>Observed label</th></tr><tr><td>1</td><td>review</td><td>0.9704</td><td>general_review</td><td>0</td></tr><tr><td>2</td><td>refresh_and_review_ctr</td><td>0.9391</td><td>low_ctr_visible_page|page_one_decay_risk</td><td>1</td></tr><tr><td>3</td><td>review</td><td>0.9315</td><td>general_review</td><td>1</td></tr><tr><td>4</td><td>review</td><td>0.9265</td><td>general_review</td><td>1</td></tr><tr><td>5</td><td>review</td><td>0.9256</td><td>general_review</td><td>1</td></tr><tr><td>6</td><td>refresh_and_review_ctr</td><td>0.9235</td><td>low_ctr_visible_page|page_one_decay_risk</td><td>1</td></tr><tr><td>7</td><td>review</td><td>0.9216</td><td>general_review</td><td>0</td></tr><tr><td>8</td><td>review</td><td>0.9215</td><td>general_review</td><td>0</td></tr><tr><td>9</td><td>review</td><td>0.9206</td><td>general_review</td><td>0</td></tr><tr><td>10</td><td>refresh_and_review_ctr</td><td>0.9197</td><td>low_ctr_visible_page|page_one_decay_risk</td><td>1</td></tr></table><p class="small">A high rank means “review earlier,” not “change automatically.” Each recommendation should be checked against query intent, current SERP presentation and the actual page.</p></section>
+<section><h2>Limitations and honest framing</h2><ul><li>Association is not causation.</li><li>Client-grouped validation reduces client memorization but does not guarantee performance on unseen businesses.</li><li>The public starter mode is a smaller safe slice; the preferred capstone run uses the gated warehouse.</li><li>CTR is affected by query intent and SERP presentation, so low CTR alone is not a content diagnosis.</li><li>The ranking queue is decision support and should not be interpreted as proof of Google's algorithm.</li></ul></section>
+<section><h2>Reproducibility</h2><p>The complete analysis is in <code>work/notebooks/capstone_analysis.ipynb</code>. The notebook writes the ranked outputs and this paper from the same run. No private queries, client names, credentials or raw gated exports are included in the repository.</p></section>
+<section><h2>Data credit</h2><p>Built on the FlyRank ML Internship search-performance warehouse and its public-safe starter material. The dataset is used for research and internship practice; the analysis does not claim to reveal proprietary ranking factors.</p></section>
+</main></body></html>
