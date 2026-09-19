@@ -1,0 +1,73 @@
+name: Execute and publish capstone
+
+on:
+  push:
+    paths:
+      - "work/notebooks/capstone_analysis.ipynb"
+      - ".github/workflows/capstone-execute.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      CAPSTONE_USE_STARTER: ${{ secrets.HF_TOKEN == '' && '1' || '0' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pandas numpy scikit-learn duckdb jupyter nbconvert
+
+      - name: Download public starter data when full warehouse is unavailable
+        if: env.CAPSTONE_USE_STARTER == '1'
+        run: |
+          mkdir -p /tmp/flyrank-data
+          curl -L --fail --retry 3             https://raw.githubusercontent.com/flyrank-bih/flyrank-ml-internship-starter/main/data/raw/content_refresh_anonymized.csv             -o /tmp/flyrank-data/content_refresh_anonymized.csv
+
+      - name: Execute capstone notebook
+        env:
+          FLYRANK_DATA_PATH: /tmp/flyrank-data/content_refresh_anonymized.csv
+        run: |
+          jupyter nbconvert             --to notebook             --execute work/notebooks/capstone_analysis.ipynb             --output /tmp/capstone_analysis_executed.ipynb             --ExecutePreprocessor.timeout=1200
+          mv /tmp/capstone_analysis_executed.ipynb work/notebooks/capstone_analysis.ipynb
+
+      - name: Commit executed notebook and paper
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add work/notebooks/capstone_analysis.ipynb work/outputs paper
+          git diff --cached --quiet || git commit -m "chore: execute capstone and publish paper"
+          git push
+
+  deploy:
+    needs: execute
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload paper artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./paper"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
