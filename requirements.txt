@@ -1,0 +1,6 @@
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+duckdb>=1.1
+jupyter>=1.1
+nbconvert>=7.16
