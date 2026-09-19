@@ -3,7 +3,6 @@ name: Execute and publish capstone
 on:
   push:
     paths:
-      - "work/notebooks/capstone_analysis.ipynb"
       - ".github/workflows/capstone-execute.yml"
   workflow_dispatch:
 
@@ -57,8 +56,10 @@ jobs:
     needs: execute
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out latest repository
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
