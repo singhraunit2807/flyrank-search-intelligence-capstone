@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local secrets
+.env
+*.token
+
+# Generated capstone outputs are reproducible and should not be required for source control
+work/outputs/*.csv
+
+# OS
+.DS_Store
+Thumbs.db
